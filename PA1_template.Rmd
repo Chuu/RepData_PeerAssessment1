@@ -11,7 +11,7 @@ pa1.data <- read.csv(unzip("activity.zip"), header=TRUE,
 ## What is mean total number of steps taken per day?
 
 * Step 1 : Generate Histogram of number of steps taken by Date
-```{r, echo=TRUE}
+```{r, echo=TRUE, results="asis"}
 hist(sapply(split(pa1.data$steps, pa1.data$date), sum), 
      xlab="Steps", main="Steps Taken by Date");
 ```
@@ -21,14 +21,36 @@ hist(sapply(split(pa1.data$steps, pa1.data$date), sum),
 ```{r, echo=TRUE, results="asis"}
 pa1.meanByDate <- aggregate(steps ~ date, data=pa1.data, 
                             FUN=function(x) c(Mean=mean(x), Median=median(x)));
-colnames(pa1.meanByDate) <- c("Date", "Mean Steps", "Median Steps");
 kable(data.frame(Date=pa1.meanByDate$date, 
                  Mean=pa1.meanByDate$steps[, 1], 
-                 Median=pa1.meanByDate$steps[, 2]));
+                 Median=pa1.meanByDate$steps[, 2]),
+      align='c');
 ```
 
 ## What is the average daily activity pattern?
+* First, we're going to aggregate the data by interval
+```{r, echo=TRUE, results="asis"}
+pa1.stepsByInterval <- aggregate(steps~interval, pa1.data, mean);
+```
+* Then, plot it.
+```{r, echo=TRUE, results="asis"}
+plot(pa1.stepsByInterval, main="Average Steps by 5-minute Interval", type="l")
+```
+* Discovering the maximum 5-minute inteval is trivial
+```{r, echo=TRUE}
+pa1.Interval <- pa1.stepsByInterval$interval[
+  pa1.stepsByInterval$steps == max(pa1.stepsByInterval$steps)];
+pa1.Interval
+```
 
+* But let's convert that to a more human readable form
+
+```{r, echo=TRUE}
+pa1.Interval.StartTime <- as.POSIXlt("1970-01-01", tz="UTC") + 60*pa1.Interval;
+pa1.Interval.EndTime <- pa1.Interval.StartTime + 60*5;
+c(Start=strftime(pa1.Interval.StartTime, format="%H:%M:%S"),
+  End=strftime(pa1.Interval.EndTime, format="%H:%M:%S"))
+```
 
 
 ## Imputing missing values
