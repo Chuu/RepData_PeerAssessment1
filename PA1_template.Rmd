@@ -48,8 +48,8 @@ pa1.Interval
 ```{r, echo=TRUE}
 pa1.Interval.StartTime <- as.POSIXlt("1970-01-01", tz="UTC") + 60*pa1.Interval;
 pa1.Interval.EndTime <- pa1.Interval.StartTime + 60*5;
-c(Start=strftime(pa1.Interval.StartTime, format="%H:%M:%S"),
-  End=strftime(pa1.Interval.EndTime, format="%H:%M:%S"))
+c(Start=strftime(pa1.Interval.StartTime, format="%H:%M:%S", usetz=TRUE),
+  End=strftime(pa1.Interval.EndTime, format="%H:%M:%S", usetz=TRUE))
 ```
 
 
