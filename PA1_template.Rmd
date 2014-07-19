@@ -2,12 +2,30 @@
 
 
 ## Loading and preprocessing the data
-
-
+* Step 1: Read the data from the .zip file into our environment
+```{r, echo=TRUE}
+pa1.data <- read.csv(unzip("activity.zip"), header=TRUE,
+                     colClasses = c("integer","Date","integer"));
+```
 
 ## What is mean total number of steps taken per day?
 
+* Step 1 : Generate Histogram of number of steps taken by Date
+```{r, echo=TRUE}
+hist(sapply(split(pa1.data$steps, pa1.data$date), sum), 
+     xlab="Steps", main="Steps Taken by Date");
+```
 
+* Step 2: Generate data frame with mean and median by date, then use kable to format it as a table
+
+```{r, echo=TRUE, results="asis"}
+pa1.meanByDate <- aggregate(steps ~ date, data=pa1.data, 
+                            FUN=function(x) c(Mean=mean(x), Median=median(x)));
+colnames(pa1.meanByDate) <- c("Date", "Mean Steps", "Median Steps");
+kable(data.frame(Date=pa1.meanByDate$date, 
+                 Mean=pa1.meanByDate$steps[, 1], 
+                 Median=pa1.meanByDate$steps[, 2]));
+```
 
 ## What is the average daily activity pattern?
 
