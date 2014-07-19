@@ -10,21 +10,29 @@ pa1.data <- read.csv(unzip("activity.zip"), header=TRUE,
 
 ## What is mean total number of steps taken per day?
 
-* Step 1 : Generate Histogram of number of steps taken by Date
+* Step 1 : Create a function to Generate Histogram of number of steps taken by Date, then call it
 ```{r, echo=TRUE, results="asis"}
-hist(sapply(split(pa1.data$steps, pa1.data$date), sum), 
-     xlab="Steps", main="Steps Taken by Date");
+generateStepHist <- function(x)
+  {
+    hist(sapply(split(x$steps, x$date), sum), 
+         xlab="Steps", main="Steps Taken by Date");
+  };
+generateStepHist(pa1.data)
 ```
 
-* Step 2: Generate data frame with mean and median by date, then use kable to format it as a table
+* Step 2: Generate a function which generates a data frame with mean and median by date, then use kable to format it as a table
 
 ```{r, echo=TRUE, results="asis"}
-pa1.meanByDate <- aggregate(steps ~ date, data=pa1.data, 
-                            FUN=function(x) c(Mean=mean(x), Median=median(x)));
-kable(data.frame(Date=pa1.meanByDate$date, 
-                 Mean=pa1.meanByDate$steps[, 1], 
-                 Median=pa1.meanByDate$steps[, 2]),
-      align='c');
+generateStepMeanByDateTable <- function(table)
+  {
+    pa1.meanByDate <- aggregate(steps ~ date, data=table, 
+                                FUN=function(x) c(Mean=mean(x), Median=median(x)));
+    kable(data.frame(Date=pa1.meanByDate$date, 
+                     Mean=pa1.meanByDate$steps[, 1], 
+                     Median=pa1.meanByDate$steps[, 2]),
+          align='c');
+  }
+generateStepMeanByDateTable(pa1.data)
 ```
 
 ## What is the average daily activity pattern?
@@ -55,6 +63,30 @@ c(Start=strftime(pa1.Interval.StartTime, format="%H:%M:%S", usetz=TRUE),
 
 ## Imputing missing values
 
+* First, we need to calculate the total number of rows with NAs.  We will be using mapply
+over each row to discover if any element is NA and then summing the resulting matrix.  We don't want to is.na over every element since a row could have multiple is.na values.
+
+```{r, echo=TRUE}
+sum(mapply(function(x,y,z) { is.na(x) || is.na(y) || is.na(z) }, 
+           pa1.data$steps, pa1.data$date, pa1.data$interval))
+```
+
+To fill in the missing step values, we're going to use the mean value of that interval for the entire data set.  Specifically, we're going to extract every row that has a NA step count, merge that datatable with a datatable with the mean by interval step counts, then concat the result with the original table minus rows with NA values.
+
+We are cheating alittle here by assuming that only step values have na's when before we assumed any value could -- but for our current data set this assumption holds.
+
+```{r, echo=TRUE}
+pa1.MeanStepByInterval <- aggregate(steps~interval, pa1.data, function(x) mean(x,na.rm=TRUE));
+pa1.MissingSteps <- pa1.data[which(is.na(pa1.data$steps)), ];
+pa1.MissingSteps <- merge(pa1.MeanStepByInterval, pa1.MissingSteps[, 2:3]);
+pa1.DataFilled <- rbind(pa1.data[which(!is.na(pa1.data$steps)), ], pa1.MissingSteps);
+```
+
+* Now we redo the analysis from the first section of this study.
+```{r, echo=TRUE, results="asis"}
+generateStepHist(pa1.DataFilled)
+generateStepMeanByDateTable(pa1.DataFilled)
+```
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
