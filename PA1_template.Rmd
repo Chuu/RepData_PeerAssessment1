@@ -81,11 +81,11 @@ pa1.MissingSteps <- merge(pa1.MeanStepByInterval, pa1.MissingSteps[, 2:3]);
 pa1.DataFilled <- rbind(pa1.data[which(!is.na(pa1.data$steps)), ], pa1.MissingSteps);
 ```
 
-* Now we redo the analysis from the first section of this study.
+* Now we redo the analysis from the first section of this study.  Because we did not stop to consider the distribution of NA values, we cannot form a hypothsis as to what we would expect the change to be.
 ```{r, echo=TRUE, results="asis"}
 generateStepHist(pa1.DataFilled)
 generateStepMeanMedianByDateTable(pa1.DataFilled)
 ```
-The mean is the same, the median is now equal to the mean, when previously it was 1 step off.  What we would expect to happen completely depends on the distribution of the NA values, which we did not stop to consider.  The fact the median is now equal to the mean is interesting but not significant since it only represents a very small step.
+The mean is the same, the median is now equal to the mean, when previously it was 1 step off.  The fact the median is now equal to the mean is interesting but not significant since it only represents a very small step and we never studied the distribution of NA values.
 
 ## Are there differences in activity patterns between weekdays and weekends?
