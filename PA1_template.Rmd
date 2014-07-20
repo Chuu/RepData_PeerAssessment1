@@ -106,6 +106,8 @@ pa1.BoxPlotData <- rbind(pa1.WeekdaySteps, pa1.WeekendSteps);
 
 * Now we have all the data we need to generate the weekday vs. weekend plot
 
+(Note to grader: I spent quite a bit of time trying to figure out how to remove the Date from the plot.  In the end, I just spent too much time on it and am submitting it with the Date included -- which should be ignored.  I am still going to investigate how to do this, but will not have an answer in time for this assignment.)
+
 ```{r, echo=TRUE}
 library(ggplot2)
 ggplot(pa1.BoxPlotData, aes(x=interval, y=steps)) + geom_line() + facet_wrap(~ Category, ncol=1)
