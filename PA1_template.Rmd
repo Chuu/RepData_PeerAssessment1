@@ -1,11 +1,21 @@
 # Reproducible Research: Peer Assessment 1
 
+## A note about Time data types
+
+Because of how `R` deals with time type, even though all times are the times included in the raw data set appear to be the user's local time -- in our processing we're treating all times as UTC to avoid implicit conversions.  To reiterate, we have not converted any times to UTC in our processing -- this is meerly a tag to prevent 'R' from doing implicit conversions that would alter our analysis.
 
 ## Loading and preprocessing the data
-* Step 1: Read the data from the .zip file into our environment
+* Step 1: Read the data from the .zip file into our environment, then change the "interval" column into a time type.
 ```{r, echo=TRUE}
 pa1.data <- read.csv(unzip("activity.zip"), header=TRUE,
                      colClasses = c("integer","Date","integer"));
+pa1.strToTime <- function(str)
+  {
+    tStr <- sprintf("%04d", str);
+    as.POSIXct(tStr, format= "%H%M", tz="UTC")
+  }
+
+pa1.data["interval"] <- lapply(pa1.data["interval"], pa1.strToTime);
 ```
 
 ## What is mean total number of steps taken per day?
@@ -33,28 +43,19 @@ generateStepMeanMedianByDateTable(pa1.data)
 ```
 
 ## What is the average daily activity pattern?
-* First, we're going to aggregate the data by interval, then change the interval column to a time data type
+* First, we're going to aggregate the data by interval
 ```{r, echo=TRUE, results="asis"}
 pa1.stepsByInterval <- aggregate(steps~interval, pa1.data, mean);
-
-pa1.strToTime <- function(str)
-  {
-    tStr <- sprintf("%04d", str);
-    as.POSIXct(tStr, format= "%H%M", tz="UTC")
-  }
-
-pa1.stepsByInterval["interval"] <- lapply(pa1.stepsByInterval["interval"], pa1.strToTime);
-
 ```
 * Then, plot it.
 ```{r, echo=TRUE, results="asis"}
 plot(pa1.stepsByInterval, main="Average Steps by 5-minute Interval", type="l")
 ```
-* Discovering the maximum 5-minute inteval is trivial
+* Discovering the maximum 5-minute inteval is trivial, just call the `max(...)` function
 ```{r, echo=TRUE}
 pa1.Interval <- pa1.stepsByInterval$interval[
   pa1.stepsByInterval$steps == max(pa1.stepsByInterval$steps)];
-strftime(pa1.Interval, format="%H:%M:%S", usetz=TRUE);
+strftime(pa1.Interval, format="%H:%M:%S", tz="UTC");
 ```
 
 ## Imputing missing values
@@ -94,3 +95,6 @@ The mean is the same, the median is now equal to the mean, when previously it wa
 ```{r, echo=TRUE}
 pa1.DataFilled["IsWeekday"] <- !(pa1.DataFilled$date %in% c("Saturday","Sunday"));
 ```
+
+*Now we have all the data we need to generate the weekday vs. weekend plot
+
