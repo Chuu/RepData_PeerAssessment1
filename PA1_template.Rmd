@@ -55,6 +55,7 @@ plot(pa1.stepsByInterval, main="Average Steps by 5-minute Interval", type="l")
 pa1.Interval <- pa1.stepsByInterval$interval[
   pa1.stepsByInterval$steps == max(pa1.stepsByInterval$steps)];
 strftime(pa1.Interval, format="%H:%M:%S", usetz=TRUE);
+```
 
 ## Imputing missing values
 
