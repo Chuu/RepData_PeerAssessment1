@@ -98,12 +98,18 @@ pa1.WeekdaySteps <- aggregate(steps~interval,
                               pa1.DataFilled[which(pa1.DataFilled$IsWeekday), ], mean);
 pa1.WeekendSteps <- aggregate(steps~interval,
                               pa1.DataFilled[which(!(pa1.DataFilled$IsWeekday)), ], mean);
-par(mfrow=c(2,1), mar=c(5,5,2,0));
-plot(pa1.WeekdaySteps$interval, pa1.WeekdaySteps$steps, type="l", 
-     main="Weekday Steps per Interval", xlab="Interval", ylab="Steps", ylim=c(0,250))
-plot(pa1.WeekendSteps$interval, pa1.WeekendSteps$steps, type="l", 
-     main = "Weekend Steps per Interval", xlab="Interval", ylab="Steps", ylim=c(0,250))
+
+pa1.WeekdaySteps["Category"] <- rep("Weekday", each=nrow(pa1.WeekdaySteps));
+pa1.WeekendSteps["Category"] <- rep("Weekend", each=nrow(pa1.WeekendSteps));
+pa1.BoxPlotData <- rbind(pa1.WeekdaySteps, pa1.WeekendSteps);
 ```
 
-*Now we have all the data we need to generate the weekday vs. weekend plot
+* Now we have all the data we need to generate the weekday vs. weekend plot
+
+```{r, echo=TRUE}
+library(ggplot2)
+ggplot(pa1.BoxPlotData, aes(x=interval, y=steps)) + geom_line() + facet_wrap(~ Category, ncol=1)
+```
+
+
 
