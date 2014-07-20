@@ -90,10 +90,14 @@ The mean is the same, the median is now equal to the mean, when previously it wa
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
-* First, we are going to modify the `pa1.DataFilled` variable to include a column signifying if the date is a weekday or weekend, using the `weekday(...)` function.
+* First, we are going to modify the `pa1.DataFilled` variable to include a column signifying if the date is a weekday or weekend, using the `weekdays(...)` function.
 
 ```{r, echo=TRUE}
-pa1.DataFilled["IsWeekday"] <- !(pa1.DataFilled$date %in% c("Saturday","Sunday"));
+pa1.DataFilled["IsWeekday"] <- !(weekdays(pa1.DataFilled$date) %in% c("Saturday","Sunday"));
+pa1.WeekdaySteps <- aggregate(steps~interval, 
+                              pa1.DataFilled[which(pa1.DataFilled$IsWeekday), ], mean);
+pa1.WeekendSteps <- aggregate(steps~interval,
+                              pa1.DataFilled[which(!(pa1.DataFilled$IsWeekday)), ], mean);
 ```
 
 *Now we have all the data we need to generate the weekday vs. weekend plot
