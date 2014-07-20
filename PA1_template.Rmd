@@ -33,9 +33,18 @@ generateStepMeanMedianByDateTable(pa1.data)
 ```
 
 ## What is the average daily activity pattern?
-* First, we're going to aggregate the data by interval
+* First, we're going to aggregate the data by interval, then change the interval column to a time data type
 ```{r, echo=TRUE, results="asis"}
 pa1.stepsByInterval <- aggregate(steps~interval, pa1.data, mean);
+
+pa1.strToTime <- function(str)
+  {
+    tStr <- sprintf("%04d", str);
+    as.POSIXct(tStr, format= "%H%M", tz="UTC")
+  }
+
+pa1.stepsByInterval["interval"] <- lapply(pa1.stepsByInterval["interval"], pa1.strToTime);
+
 ```
 * Then, plot it.
 ```{r, echo=TRUE, results="asis"}
@@ -45,19 +54,7 @@ plot(pa1.stepsByInterval, main="Average Steps by 5-minute Interval", type="l")
 ```{r, echo=TRUE}
 pa1.Interval <- pa1.stepsByInterval$interval[
   pa1.stepsByInterval$steps == max(pa1.stepsByInterval$steps)];
-pa1.Interval
-```
-
-* But let's convert that to a more human readable form
-
-```{r, echo=TRUE}
-if(nchar(pa1.Interval == 3)) { pa1.Interval <<- paste("0", pa1.Interval, sep="");};
-pa1.Interval.StartTime <- as.POSIXct(pa1.Interval, format = "%H%M", tz="UTC")
-pa1.Interval.EndTime <- pa1.Interval.StartTime + 60*5;
-c(Start=strftime(pa1.Interval.StartTime, format="%H:%M:%S", usetz=TRUE),
-  End=strftime(pa1.Interval.EndTime, format="%H:%M:%S", usetz=TRUE))
-```
-
+strftime(pa1.Interval, format="%H:%M:%S", usetz=TRUE);
 
 ## Imputing missing values
 
