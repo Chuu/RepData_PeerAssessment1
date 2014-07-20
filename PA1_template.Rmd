@@ -23,16 +23,13 @@ generateStepHist(pa1.data)
 * Step 2: Generate a function which generates a data frame with mean and median by date, then use kable to format it as a table
 
 ```{r, echo=TRUE, results="asis"}
-generateStepMeanByDateTable <- function(table)
+generateStepMeanMedianByDateTable <- function(table)
   {
-    pa1.meanByDate <- aggregate(steps ~ date, data=table, 
-                                FUN=function(x) c(Mean=mean(x), Median=median(x)));
-    kable(data.frame(Date=pa1.meanByDate$date, 
-                     Mean=pa1.meanByDate$steps[, 1], 
-                     Median=pa1.meanByDate$steps[, 2]),
-          align='c');
+    aggregation <- aggregate(steps ~ date, data=table, FUN=sum);
+    kable(data.frame(Mean=mean(aggregation$steps), Median=median(aggregation$steps)))
   }
-generateStepMeanByDateTable(pa1.data)
+
+generateStepMeanMedianByDateTable(pa1.data)
 ```
 
 ## What is the average daily activity pattern?
@@ -73,6 +70,8 @@ sum(mapply(function(x,y,z) { is.na(x) || is.na(y) || is.na(z) },
 
 To fill in the missing step values, we're going to use the mean value of that interval for the entire data set.  Specifically, we're going to extract every row that has a NA step count, merge that datatable with a datatable with the mean by interval step counts, then concat the result with the original table minus rows with NA values.
 
+This apporoach is flawed for a great variety of reasons, one of which we're going to see very shortly (i.e. the difference between Weekday and Weekend walking patterns), but it's the simplest method we have avaliable and is fine to use as a baseline to improve upon and measure against.
+
 We are cheating alittle here by assuming that only step values have na's when before we assumed any value could -- but for our current data set this assumption holds.
 
 ```{r, echo=TRUE}
@@ -85,8 +84,8 @@ pa1.DataFilled <- rbind(pa1.data[which(!is.na(pa1.data$steps)), ], pa1.MissingSt
 * Now we redo the analysis from the first section of this study.
 ```{r, echo=TRUE, results="asis"}
 generateStepHist(pa1.DataFilled)
-generateStepMeanByDateTable(pa1.DataFilled)
+generateStepMeanMedianByDateTable(pa1.DataFilled)
 ```
-
+The mean is the same, the median is now equal to the mean, when previously it was 1 step off.  What we would expect to happen completely depends on the distribution of the NA values, which we did not stop to consider.  The fact the median is now equal to the mean is interesting but not significant since it only represents a very small step.
 
 ## Are there differences in activity patterns between weekdays and weekends?
